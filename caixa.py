@@ -1,0 +1,9 @@
+from crud import decidir_abrir_caixa, carregar_mocki_clientes
+from dashboard import exibir_dashboard_abrir_caixa
+from extracao_dados import inicializar_extracao_dados
+
+inicializar_extracao_dados()
+carregar_mocki_clientes()
+
+exibir_dashboard_abrir_caixa()
+decidir_abrir_caixa()
