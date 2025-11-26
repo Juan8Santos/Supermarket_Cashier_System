@@ -31,14 +31,15 @@ def atender_cliente(vendas_do_dia, cliente):
 def executar_operacao_caixa(sacola, id_produto, quantidade):
     try:
         produto = buscar_produto_por_id(id_produto)
-        reduzir_estoque(id_produto, quantidade)
-        sacola.append((produto, quantidade))
+        quantidade_produto = validar_quantidade_suficiente(id_produto, quantidade, sacola)
+        sacola.append((produto, quantidade_produto))
         print(f"Produto {produto.nome} adicionado à sacola.")
-    except ValueError as e: 
+    except ValueError as e:
         print(e)
 
 def finalizar_venda(sacola, cliente, vendas_do_dia):
     if len(sacola) > 0:
+        reduzir_estoque(sacola)
         total = sum([produto.preco * quantidade for produto, quantidade in sacola])
         vendas_do_dia.append({"cliente": cliente, "total": total})
         gerar_boleto(sacola, cliente)
@@ -81,12 +82,9 @@ def fechar_caixa(vendas_do_dia):
 
 # ====== Funções para Produtos ======
 
-def reduzir_estoque(id_produto, quantidade):
-    produto = buscar_quantidade_por_id_db(id_produto)
-    if quantidade > produto:
-        raise ValueError("Quantidade indisponível no estoque.")
-    else:
-        reduzir_estoque_db(id_produto, quantidade)
+def reduzir_estoque(sacola):
+    for produto, quantidade in sacola:
+        reduzir_estoque_db(produto.id, quantidade)
 
 def buscar_produto_por_id(id_produto):
     produto = buscar_por_id_db(id_produto)
@@ -94,6 +92,17 @@ def buscar_produto_por_id(id_produto):
         raise ValueError("Produto não encontrado.")
     else:
         return produto
+
+def validar_quantidade_suficiente(id_produto, quantidade, sacola):
+    verificacao_quantidade_total = 0
+    quantidade_estoque = buscar_quantidade_por_id_db(id_produto)
+    for produto_sacola, quantidade_sacola in sacola:
+        if produto_sacola.id == id_produto:
+            verificacao_quantidade_total += quantidade_sacola
+    if (verificacao_quantidade_total + quantidade) > quantidade_estoque:
+        raise ValueError("Quantidade indisponível no estoque.")
+    else:
+        return quantidade
 
 def verificar_sem_estoque():
     sem_estoque = verificar_sem_estoque_db()
