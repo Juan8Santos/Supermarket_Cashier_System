@@ -3,4 +3,3 @@ def exibir_dashboard_abrir_caixa():
     print("[1] - Abrir Caixa")
     print("[2] - Fechar Caixa")
     
-    
