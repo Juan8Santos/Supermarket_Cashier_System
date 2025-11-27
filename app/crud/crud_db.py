@@ -1,5 +1,5 @@
-from models import Produto, Cliente
-from conexao import session   
+from app.models.models import Produto, Cliente
+from app.conexao import session   
 
 # ====== Queries para Produtos ======
 

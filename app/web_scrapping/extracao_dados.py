@@ -1,7 +1,7 @@
 from urllib.request import urlopen
 import pandas as pd
 from bs4 import BeautifulSoup
-from extracao_dados_crud import gerar_csv, armazenar_no_db
+from app.web_scrapping.extracao_dados_crud import gerar_csv, armazenar_no_db
 
 URL = "https://pedrovncs.github.io/lindosprecos/produtos.html#"
 
@@ -44,5 +44,5 @@ def inicializar_extracao_dados():
     produtos = obter_tabela(bs)
     df = criar_dataframe(produtos)
 
-    gerar_csv(df, "produtos.csv")
+    gerar_csv(df, "app/data/produtos.csv")
     armazenar_no_db()

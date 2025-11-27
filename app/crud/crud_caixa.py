@@ -1,7 +1,7 @@
-from util import entrar_int_personalizado, entrar_int
+from app.utils.util import entrar_int_personalizado, entrar_int
 from tabulate import tabulate
 from datetime import datetime
-from crud_db import *
+from app.crud.crud_db import *
 import pandas as pd
 
 # ====== Funções para o Caixa ======
@@ -166,7 +166,7 @@ def verificar_formatacao_nome_cliente(nome_cliente):
         return False
 
 def carregar_mocki_clientes():
-    clientes_para_mocki = pd.read_json("clientes.json")
+    clientes_para_mocki = pd.read_json("app/data/clientes.json")
     qtd_clientes = contar_clientes_db()
     if qtd_clientes == 0:
         carregar_mocki_clientes_db(clientes_para_mocki)
