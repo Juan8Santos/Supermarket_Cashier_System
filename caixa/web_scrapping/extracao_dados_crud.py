@@ -1,12 +1,12 @@
-from app.conexao import session
-from app.models.models import Produto
+from commons.conn.conexao import session
+from commons.models.models import Produto
 import pandas as pd
 
 def gerar_csv(df, nome_arquivo):
     df.to_csv(nome_arquivo, index=False)
 
 def armazenar_no_db():
-    produto_csv = pd.read_csv("app/data/produtos.csv", encoding="utf-8")
+    produto_csv = pd.read_csv("commons/data/produtos.csv", encoding="utf-8")
     with session:
         session.query(Produto).delete()
         session.commit()

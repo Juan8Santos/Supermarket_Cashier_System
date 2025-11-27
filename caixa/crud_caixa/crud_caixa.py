@@ -1,14 +1,14 @@
-from app.utils.util import entrar_int_personalizado, entrar_int
+from commons.utils.util import entrar_int_personalizado, entrar_int
 from tabulate import tabulate
 from datetime import datetime
-from app.crud.crud_db import *
+from commons.crud_db.crud_db import *
 import pandas as pd
 
 # ====== Funções para o Caixa ======
 
 def decidir_abrir_caixa():
     vendas_do_dia = []
-    entrada = entrar_int_personalizado("Digite uma das operações: ", 1, 2)
+    entrada = entrar_int_personalizado(">> Digite uma das operações: ", 1, 2)
     if entrada == 1:
         cliente = solicitar_id_cliente()
         atender_cliente(vendas_do_dia, cliente)
@@ -166,7 +166,7 @@ def verificar_formatacao_nome_cliente(nome_cliente):
         return False
 
 def carregar_mocki_clientes():
-    clientes_para_mocki = pd.read_json("app/data/clientes.json")
+    clientes_para_mocki = pd.read_json("commons/data/clientes.json")
     qtd_clientes = contar_clientes_db()
     if qtd_clientes == 0:
         carregar_mocki_clientes_db(clientes_para_mocki)

@@ -1,12 +1,3 @@
-# ====== Menus caixa ======
-
-def exibir_dashboard_abrir_caixa():
-    print("\n====== Caixa SuperMercado ======")
-    print("[1] - Abrir Caixa")
-    print("[2] - Fechar Caixa")
-
-# ====== Menus SIG ======
-
 def exibir_dashboard_sig():
     print("="*40)
     print(" "*2 + "Sistema de Informação Gerencial (SIG)")
@@ -20,4 +11,4 @@ def exibir_dashboard_sig():
     print("\033[92m[6]\033[0m Sair")
 
     print("-"*40)
-    return input("Escolha uma opção: ")
+    return input(">> Escolha uma opção: ")
