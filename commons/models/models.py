@@ -21,14 +21,13 @@ class Produto(Base):
         back_populates="produtos"
     )
 
-    def __init__(self, id, nome, quantidade, preco):
-        self.id = id
+    def __init__(self, nome, quantidade, preco):
         self.nome = nome
         self.quantidade = quantidade
         self.preco = preco
 
     def __str__(self):
-        return f"{self.id} {self.nome} {self.quantidade} {self.preco:.2f}"
+        return f"{self.nome} {self.quantidade} {self.preco:.2f}"
 
 
 class Fornecedor(Base):
@@ -43,23 +42,23 @@ class Fornecedor(Base):
         back_populates="fornecedores"
     )
 
-    def __init__(self, id, nome):
-        self.id = id
+    def __init__(self, nome):
         self.nome = nome
 
     def __str__(self):
-        return f"{self.id} {self.nome}"
+        return f"{self.nome}"
 
 
 class Cliente(Base):
     __tablename__ = "clientes"
 
-    id_cliente = Column(Integer, primary_key=True, autoincrement=False)
+    id_cliente = Column(Integer, primary_key=True)
     nome = Column(String, nullable=False)
 
     compras = relationship("Compra", back_populates="cliente")
 
-    def __init__(self, nome):
+    def __init__(self, id_cliente, nome):
+        self.id_cliente = id_cliente
         self.nome = nome
 
     def __str__(self):
@@ -76,12 +75,12 @@ class Compra(Base):
     cliente = relationship("Cliente", back_populates="compras")
     itens = relationship("Item", back_populates="compra")
 
-    def __init__(self, id, id_cliente):
-        self.id = id
+    def __init__(self, id_cliente):
         self.id_cliente = id_cliente
 
+
     def __str__(self):
-        return f"{self.id} {self.id_cliente} {self.data_hora}"
+        return f"{self.id_cliente}"
 
 
 class Item(Base):
@@ -96,15 +95,14 @@ class Item(Base):
     compra = relationship("Compra", back_populates="itens")
     produto = relationship("Produto", back_populates="itens")
 
-    def __init__(self, id, compra_id, produto_id, quantidade, preco):
-        self.id = id
+    def __init__(self, compra_id, produto_id, quantidade, preco):
         self.compra_id = compra_id
         self.produto_id = produto_id
         self.quantidade = quantidade
         self.preco = preco
 
     def __str__(self):
-        return f"{self.id} {self.compra_id} {self.produto_id} {self.quantidade} {self.preco:.2f}"
+        return f"{self.compra_id} {self.produto_id} {self.quantidade} {self.preco:.2f}"
 
 
 class ProdutosFornecedores(Base):

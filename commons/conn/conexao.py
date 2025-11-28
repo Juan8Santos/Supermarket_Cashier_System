@@ -3,10 +3,10 @@ from sqlalchemy.orm import sessionmaker
 from commons.models.models import Base
 import os.path
 
-DIR = os.path.dirname(os.path.abspath(__file__))
-BANCO = os.path.join(DIR, "data", "mercado.db")
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+BANCO = os.path.join(ROOT, "data", "mercado.db")
 
-os.makedirs(os.path.join(DIR, "data"), exist_ok=True)
+os.makedirs(os.path.join(ROOT, "data"), exist_ok=True)
 
 engine = create_engine(f"sqlite:///{BANCO}")
 Session = sessionmaker(bind=engine)
