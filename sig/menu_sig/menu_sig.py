@@ -1,14 +1,31 @@
-def exibir_dashboard_sig():
+def exibir_menu_sig():
     print("="*40)
     print(" "*2 + "Sistema de Informação Gerencial (SIG)")
     print("="*40)
-
     print("\033[92m[1]\033[0m Clientes")
     print("\033[92m[2]\033[0m Produtos")
-    print("\033[92m[3]\033[0m Caixa")
-    print("\033[92m[4]\033[0m Estoque")
-    print("\033[92m[5]\033[0m Relatórios")
-    print("\033[92m[6]\033[0m Sair")
-
+    print("\033[92m[3]\033[0m Sair")
     print("-"*40)
-    return input(">> Escolha uma opção: ")
+
+def menu_modulo_clientes_sig():
+    print("="*40)
+    print(" "*6 + "Módulo de Clientes - SIG")
+    print("="*40)
+    print("\033[92m[1]\033[0m Clientes com compras")
+    print("\033[92m[2]\033[0m Clientes sem compras")
+    print("\033[92m[3]\033[0m Voltar")
+    print("-"*40)
+
+def menu_modulo_produtos_sig():
+    print("="*40)
+    print(" "*6 + "Módulo de Produtos - SIG")
+    print("="*40)
+    print("\033[92m[1]\033[0m Cadastrar novo produto")
+    print("\033[92m[2]\033[0m Atualizar produto")
+    print("\033[92m[3]\033[0m Remover produto")
+    print("\033[92m[4]\033[0m Exibir fornecedores de um produto")
+    print("\033[92m[5]\033[0m Produtos mais vendidos")
+    print("\033[92m[6]\033[0m Produtos menos vendidos")
+    print("\033[92m[7]\033[0m Produtos com pouco estoque")
+    print("\033[92m[8]\033[0m Voltar")
+    print("-"*40)

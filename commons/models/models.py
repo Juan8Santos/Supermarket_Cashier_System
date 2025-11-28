@@ -54,17 +54,16 @@ class Fornecedor(Base):
 class Cliente(Base):
     __tablename__ = "clientes"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id_cliente = Column(Integer, primary_key=True, autoincrement=False)
     nome = Column(String, nullable=False)
 
     compras = relationship("Compra", back_populates="cliente")
 
-    def __init__(self, id, nome):
-        self.id = id
+    def __init__(self, nome):
         self.nome = nome
 
     def __str__(self):
-        return f"{self.id} {self.nome}"
+        return f"{self.nome}"
 
 
 class Compra(Base):
@@ -72,17 +71,17 @@ class Compra(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     data_hora = Column(DateTime, nullable=False, server_default=func.now())
-    cliente_id = Column(Integer, ForeignKey("clientes.id"), nullable=False)
+    id_cliente = Column(Integer, ForeignKey("clientes.id_cliente"), nullable=False)
 
     cliente = relationship("Cliente", back_populates="compras")
     itens = relationship("Item", back_populates="compra")
 
-    def __init__(self, id, cliente_id):
+    def __init__(self, id, id_cliente):
         self.id = id
-        self.cliente_id = cliente_id
+        self.id_cliente = id_cliente
 
     def __str__(self):
-        return f"{self.id} {self.cliente_id} {self.data_hora}"
+        return f"{self.id} {self.id_cliente} {self.data_hora}"
 
 
 class Item(Base):
