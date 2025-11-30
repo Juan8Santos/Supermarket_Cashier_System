@@ -42,7 +42,8 @@ def finalizar_venda(sacola, cliente, vendas_do_dia):
         reduzir_estoque(sacola)
         total = sum([produto.preco * quantidade for produto, quantidade in sacola])
         vendas_do_dia.append({"cliente": cliente.nome, "total": total})
-        registrar_compra(cliente.id_cliente)
+        id_compra = registrar_compra(cliente.id_cliente)
+        registrar_itens_compra(id_compra, sacola)
         gerar_boleto(sacola, cliente)
         decidir_fechar_caixa(vendas_do_dia)
     else:
@@ -124,9 +125,10 @@ def procurar_cliente(id_cliente):
         return False
     
 def armazenar_cliente(nome_cliente, id):
-    novo_cliente = armazenar_cliente_db(nome_cliente, id)
+    armazenar_cliente_db(nome_cliente, id)
+    novo_cliente = obter_cliente_db(id)
     if novo_cliente:
-        print(f"{nome_cliente} registrado com sucesso.")
+        print(f"\n{novo_cliente.nome} registrado com sucesso.")
     return novo_cliente
 
 def registrar_cliente():
@@ -177,3 +179,8 @@ def carregar_mocki_clientes():
 def registrar_compra(id_cliente):
     id_compra = armazenar_compras_no_db(id_cliente)
     return id_compra
+
+# ====== Funções para Itens ======
+
+def registrar_itens_compra(id_compra, sacola):
+    armazenar_itens_compra_no_db(id_compra, sacola)

@@ -1,4 +1,4 @@
-from commons.models.models import Produto, Cliente, Fornecedor, ProdutosFornecedores, Compra
+from commons.models.models import Produto, Cliente, Fornecedor, ProdutosFornecedores, Compra, Item
 from commons.conn.conexao import session   
 
 # ====== Queries para Produtos ======
@@ -66,9 +66,7 @@ def carregar_mocki_clientes_db(clientes_para_mocki):
 
 def procurar_cliente_db(id_cliente):
     try:
-        with session:
-            cliente = session.query(Cliente).filter_by(id_cliente=id_cliente).first()
-        return cliente
+        return session.query(Cliente).filter_by(id_cliente=id_cliente).first()
     except Exception as e:
         print("Erro ao procurar cliente por ID:", e)
     
@@ -78,17 +76,15 @@ def armazenar_cliente_db(nome_cliente, id_cliente):
             novo_cliente = Cliente(id_cliente=id_cliente, nome=nome_cliente)
             session.add(novo_cliente)
             session.commit()
-            return novo_cliente
     except Exception as e:
         print("Erro ao armazenar novo cliente:", e)
 
 def obter_cliente_db(id_cliente):
     try:
-        with session:
-            cliente = session.query(Cliente).filter_by(id_cliente=id_cliente).first()
+        cliente = session.query(Cliente).filter_by(id_cliente=id_cliente).first()
         return cliente
     except Exception as e:
-        print("Erro ao obter nome do cliente por ID:", e) 
+        print("Erro ao obter nome do cliente por ID:", e)
 
 def procurar_nome_cliente_db(nome_cliente):
     try:
@@ -160,3 +156,20 @@ def armazenar_compras_no_db(id_cliente):
             return nova_compra.id
     except Exception as e:
         print("Erro ao armazenar nova compra no banco de dados:", e)
+
+# ====== Queries para Itens ======
+
+def armazenar_itens_compra_no_db(id_compra, sacola):
+    try:
+        with session:
+            for produto, quantidade in sacola:
+                novo_item = Item(
+                    compra_id=id_compra,
+                    produto_id=produto.id,
+                    quantidade=quantidade,
+                    preco_unitario=produto.preco
+                )
+                session.add(novo_item)
+            session.commit()
+    except Exception as e:
+        print("Erro ao armazenar itens da compra no banco de dados:", e)
