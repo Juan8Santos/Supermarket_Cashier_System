@@ -10,14 +10,14 @@ def decidir_abrir_caixa():
     vendas_do_dia = []
     entrada = entrar_int_personalizado(">> Digite uma das operações: ", 1, 2)
     if entrada == 1:
-        cliente = solicitar_id_cliente()
+        cliente = solicitar_cliente()
         atender_cliente(vendas_do_dia, cliente)
     else:
         fechar_caixa(vendas_do_dia)
 
 def atender_cliente(vendas_do_dia, cliente):
     sacola = []
-    print(f"\n{cliente}")
+    print(f"\n{cliente.nome}")
     while True:
         print("\n* Digite o id do produto e a quantidade desejada.\n")
         id_produto = entrar_int("Digite o id do produto: ")
@@ -41,7 +41,8 @@ def finalizar_venda(sacola, cliente, vendas_do_dia):
     if len(sacola) > 0:
         reduzir_estoque(sacola)
         total = sum([produto.preco * quantidade for produto, quantidade in sacola])
-        vendas_do_dia.append({"cliente": cliente, "total": total})
+        vendas_do_dia.append({"cliente": cliente.nome, "total": total})
+        registrar_compra(cliente.id_cliente)
         gerar_boleto(sacola, cliente)
         decidir_fechar_caixa(vendas_do_dia)
     else:
@@ -51,7 +52,7 @@ def finalizar_venda(sacola, cliente, vendas_do_dia):
 def decidir_fechar_caixa(vendas_do_dia):
     entrada = entrar_int_personalizado("\nDeseja atender o próximo cliente? [1] - Atender Cliente / [2] - Fechar Caixa: ", 1, 2)
     if entrada == 1:
-        cliente = solicitar_id_cliente()
+        cliente = solicitar_cliente()
         atender_cliente(vendas_do_dia, cliente)
     else:
         fechar_caixa(vendas_do_dia)
@@ -65,7 +66,7 @@ def gerar_df_boleto(sacola):
 
 def gerar_boleto(sacola, cliente):
     df_group = gerar_df_boleto(sacola)
-    print(f"\nCliente {cliente}")
+    print(f"\nCliente {cliente.nome}")
     print(f"Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}\n")    
     print(tabulate(df_group, headers=["Item", "Produto", "Preço", "Quant.", "Total"]))
     print(f"\nItens diferentes: {len(df_group)}")
@@ -125,7 +126,7 @@ def procurar_cliente(id_cliente):
 def armazenar_cliente(nome_cliente, id):
     novo_cliente = armazenar_cliente_db(nome_cliente, id)
     if novo_cliente:
-        print(f"Cliente {nome_cliente} registrado com sucesso.")
+        print(f"{nome_cliente} registrado com sucesso.")
     return novo_cliente
 
 def registrar_cliente():
@@ -142,11 +143,11 @@ def registrar_cliente():
     cliente = armazenar_cliente(nome_cliente.capitalize(), id)
     return cliente
 
-def solicitar_id_cliente():
+def solicitar_cliente():
     id_cliente = entrar_int("\nDigite o ID do cliente: ")
     cliente_existe = procurar_cliente(id_cliente)
     if cliente_existe:
-        cliente = obter_nome_cliente_db(id_cliente)
+        cliente = obter_cliente_db(id_cliente)
     else:
         cliente = registrar_cliente()
     return cliente
@@ -170,3 +171,9 @@ def carregar_mocki_clientes():
     qtd_clientes = contar_clientes_db()
     if qtd_clientes == 0:
         carregar_mocki_clientes_db(clientes_para_mocki)
+
+# ====== Funções para Compras ======
+
+def registrar_compra(id_cliente):
+    id_compra = armazenar_compras_no_db(id_cliente)
+    return id_compra

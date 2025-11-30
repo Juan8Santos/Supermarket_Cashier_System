@@ -1,6 +1,4 @@
-from sqlalchemy import (
-    Column, Integer, String, Float, DateTime, ForeignKey, func
-)
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, func
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -90,16 +88,16 @@ class Item(Base):
     compra_id = Column(Integer, ForeignKey("compras.id"), nullable=False)
     produto_id = Column(Integer, ForeignKey("produtos.id"), nullable=False)
     quantidade = Column(Integer, nullable=False)
-    preco = Column(Float, nullable=False)
+    preco_unitario = Column(Float, nullable=False)
 
     compra = relationship("Compra", back_populates="itens")
     produto = relationship("Produto", back_populates="itens")
 
-    def __init__(self, compra_id, produto_id, quantidade, preco):
+    def __init__(self, compra_id, produto_id, quantidade, preco_unitario):
         self.compra_id = compra_id
         self.produto_id = produto_id
         self.quantidade = quantidade
-        self.preco = preco
+        self.preco_unitario = preco_unitario
 
     def __str__(self):
         return f"{self.compra_id} {self.produto_id} {self.quantidade} {self.preco:.2f}"

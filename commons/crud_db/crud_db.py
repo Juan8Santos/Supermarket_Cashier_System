@@ -1,4 +1,4 @@
-from commons.models.models import Produto, Cliente, Fornecedor, ProdutosFornecedores
+from commons.models.models import Produto, Cliente, Fornecedor, ProdutosFornecedores, Compra
 from commons.conn.conexao import session   
 
 # ====== Queries para Produtos ======
@@ -78,15 +78,15 @@ def armazenar_cliente_db(nome_cliente, id_cliente):
             novo_cliente = Cliente(id_cliente=id_cliente, nome=nome_cliente)
             session.add(novo_cliente)
             session.commit()
-            return novo_cliente.nome
+            return novo_cliente
     except Exception as e:
         print("Erro ao armazenar novo cliente:", e)
 
-def obter_nome_cliente_db(id_cliente):
+def obter_cliente_db(id_cliente):
     try:
         with session:
             cliente = session.query(Cliente).filter_by(id_cliente=id_cliente).first()
-        return cliente.nome
+        return cliente
     except Exception as e:
         print("Erro ao obter nome do cliente por ID:", e) 
 
@@ -146,3 +146,17 @@ def armazenar_produtos_fornecedores_no_db(dataframe_produtos_fornecedores):
             session.commit()
     except Exception as e:
         print("Erro ao armazenar produtos e fornecedores no banco de dados:", e)
+
+# ====== Queries para Produtos ======
+
+def armazenar_compras_no_db(id_cliente):
+    try:
+        with session:
+            nova_compra = Compra(
+                id_cliente=id_cliente
+            )
+            session.add(nova_compra)
+            session.commit()
+            return nova_compra.id
+    except Exception as e:
+        print("Erro ao armazenar nova compra no banco de dados:", e)
