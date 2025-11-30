@@ -1,0 +1,48 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS produtos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    quantidade INTEGER NOT NULL DEFAULT 0,
+    preco REAL NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS clientes (
+    id_cliente INTEGER PRIMARY KEY,
+    nome TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS fornecedores (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS compras (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    data_hora DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id_cliente INTEGER NOT NULL,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) 
+    ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS itens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    compra_id INTEGER NOT NULL,
+    produto_id INTEGER NOT NULL,
+    quantidade INTEGER NOT NULL,
+    preco_unitario REAL NOT NULL,
+    FOREIGN KEY (compra_id) REFERENCES compras(id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+    ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS produtos_fornecedores (
+    produto_id INTEGER NOT NULL,
+    fornecedor_id INTEGER NOT NULL,
+    PRIMARY KEY (produto_id, fornecedor_id),
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (fornecedor_id) REFERENCES fornecedores(id)
+    ON UPDATE CASCADE ON DELETE CASCADE
+);

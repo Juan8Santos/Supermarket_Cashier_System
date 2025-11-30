@@ -58,7 +58,7 @@ def carregar_mocki_clientes_db(clientes_para_mocki):
     try:
         with session:
             for _, cliente in clientes_para_mocki.iterrows():
-                objeto_cliente = Cliente(None, nome=cliente["nome"])
+                objeto_cliente = Cliente(id_cliente=None, nome=cliente["nome"])
                 session.add(objeto_cliente)
             session.commit()
     except Exception as e:

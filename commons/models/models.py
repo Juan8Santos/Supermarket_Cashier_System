@@ -3,7 +3,6 @@ from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
 
-
 class Produto(Base):
     __tablename__ = "produtos"
 
@@ -12,7 +11,7 @@ class Produto(Base):
     quantidade = Column(Integer, nullable=False, default=0)
     preco = Column(Float, nullable=False)
 
-    itens = relationship("Item", back_populates="produto")
+    itens = relationship("Item", back_populates="produto", cascade="all, delete-orphan")
     fornecedores = relationship(
         "Fornecedor",
         secondary="produtos_fornecedores",
@@ -53,9 +52,9 @@ class Cliente(Base):
     id_cliente = Column(Integer, primary_key=True)
     nome = Column(String, nullable=False)
 
-    compras = relationship("Compra", back_populates="cliente")
+    compras = relationship("Compra", back_populates="cliente", cascade="all, delete-orphan")
 
-    def __init__(self, id_cliente, nome):
+    def __init__(self, nome, id_cliente):
         self.id_cliente = id_cliente
         self.nome = nome
 
@@ -71,14 +70,13 @@ class Compra(Base):
     id_cliente = Column(Integer, ForeignKey("clientes.id_cliente"), nullable=False)
 
     cliente = relationship("Cliente", back_populates="compras")
-    itens = relationship("Item", back_populates="compra")
+    itens = relationship("Item", back_populates="compra", cascade="all, delete-orphan")
 
     def __init__(self, id_cliente):
         self.id_cliente = id_cliente
 
-
     def __str__(self):
-        return f"{self.id_cliente}"
+        return f"{self.id}"
 
 
 class Item(Base):
@@ -100,7 +98,7 @@ class Item(Base):
         self.preco_unitario = preco_unitario
 
     def __str__(self):
-        return f"{self.compra_id} {self.produto_id} {self.quantidade} {self.preco:.2f}"
+        return f"{self.compra_id} {self.produto_id} {self.quantidade} {self.preco_unitario:.2f}"
 
 
 class ProdutosFornecedores(Base):
