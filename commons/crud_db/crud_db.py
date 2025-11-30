@@ -1,4 +1,4 @@
-from commons.models.models import Produto, Cliente
+from commons.models.models import Produto, Cliente, Fornecedor, ProdutosFornecedores
 from commons.conn.conexao import session   
 
 # ====== Queries para Produtos ======
@@ -96,4 +96,53 @@ def procurar_nome_cliente_db(nome_cliente):
             cliente = session.query(Cliente).filter_by(nome=nome_cliente).first()
         return cliente
     except Exception as e:
-        print("Erro ao procurar cliente por nome:", e)        
+        print("Erro ao procurar cliente por nome:", e)
+
+# ====== Queries para insert de base de dados no BD ======  
+
+def armazenar_produtos_no_db(dataframe_produtos):
+    try:
+        with session:
+            session.query(Produto).delete()
+            session.commit()
+            for _, linha in dataframe_produtos.iterrows():
+                produto = Produto(
+                    nome=linha['Nome'],
+                    quantidade=int(linha['Quantidade']),
+                    preco=float(linha['Preço'])
+                )
+                session.add(produto)
+            session.commit()
+    except Exception as e:
+        print("Erro ao armazenar produtos no banco de dados:", e)
+
+def armazenar_fornecedores_no_db(dataframe_fornecedores):
+    try:
+        with session:
+            session.query(Fornecedor).delete()
+            session.commit()
+            for _, linha in dataframe_fornecedores.iterrows():
+                fornecedor = Fornecedor(
+                    nome=linha['nome']
+                )
+                session.add(fornecedor)
+            session.commit()
+    except Exception as e:
+        print("Erro ao armazenar fornecedores no banco de dados:", e)
+
+def armazenar_produtos_fornecedores_no_db(dataframe_produtos_fornecedores):
+    try:
+        with session:
+            session.query(ProdutosFornecedores).delete()
+            session.commit()
+            for _, linha in dataframe_produtos_fornecedores.iterrows():
+                produto_id = int(linha['id_produto'])
+                fornecedor_id = int(linha['id_fornecedor'])
+                produtos_fornecedores = ProdutosFornecedores(
+                    produto_id=produto_id,
+                    fornecedor_id=fornecedor_id
+                )
+                session.add(produtos_fornecedores)
+            session.commit()
+    except Exception as e:
+        print("Erro ao armazenar produtos e fornecedores no banco de dados:", e)

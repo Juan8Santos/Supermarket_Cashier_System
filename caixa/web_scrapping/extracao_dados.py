@@ -43,6 +43,5 @@ def inicializar_extracao_dados():
     bs = BeautifulSoup(html, "html.parser")
     produtos = obter_tabela(bs)
     df = criar_dataframe(produtos)
-
     gerar_csv(df, "commons/data/produtos.csv")
     armazenar_no_db()

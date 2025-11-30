@@ -4,11 +4,13 @@ from commons.utils.util import entrar_int_personalizado
 from commons.menu.menu import menu_inicial_aplicacao
 from caixa.web_scrapping.extracao_dados import inicializar_extracao_dados
 from caixa.crud_caixa.crud_caixa import carregar_mocki_clientes
+from sig.data_extraction.data_extraction import inicializar_extracao_dados_sheets
 
 class AppController:
     def start(self):
         inicializar_extracao_dados()
         carregar_mocki_clientes()
+        inicializar_extracao_dados_sheets()
         while True:
             menu_inicial_aplicacao()
             entrada = entrar_int_personalizado(">> Escolha uma opção: ", 1, 3)
