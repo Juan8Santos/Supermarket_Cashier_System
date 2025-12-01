@@ -119,6 +119,12 @@ def decidir_opcao_no_clientes_com_compras():
         
 def consultar_cliente_com_compras():
     while True:
+        produtos = listar_todos_clientes_com_contagem_de_compras_db()
+        print("\nClientes e quantidades compras:\n")
+        for cliente in produtos:
+            total_compras = len(cliente.compras) if cliente.compras else 0
+            print(f"- Id {cliente.id_cliente} | {cliente.nome} | Total de compras: {total_compras}")
+        print("")
         entrada = entrar_int(">> Digite o id do cliente que deseja encontrar o histórico: ")
         cliente = procurar_cliente_db(entrada)
         if cliente is None:
@@ -134,7 +140,8 @@ def consultar_cliente_com_compras():
 def formatar_historico_compras_cliente(cliente, compras):
     print(f"\nHistórico de compras do cliente {cliente.nome}:\n")
     for compra in compras:
-        print(f"- Compra ID: {compra.id}, Data e Hora: {compra.data_hora}")
+        total = sum(item.quantidade * item.preco_unitario for item in compra.itens)
+        print(f"- Compra ID: {compra.id}, Data e Hora: {compra.data_hora}, total: R$ {total:.2f}")
     print("")
 
 def decidir_consultar_compra_do_cliente(cliente, compras):
@@ -170,11 +177,11 @@ def formatar_detalhes_compra_cliente(compra):
         tabela.append([
             item.produto.nome,
             item.quantidade,
-            f"R${item.preco_unitario:.2f}",
-            f"R${subtotal:.2f}"
+            f"{item.preco_unitario:.2f}",
+            f"{subtotal:.2f}"
         ])
     print(tabulate(tabela, headers=["Produto", "Quantidade", "Preço Unitário", "Subtotal"]))
-    print(f"\nValor Total da Compra: R${valor_total:.2f}\n")
+    print(f"\nValor Total da Compra: R$ {valor_total:.2f}\n")
 
 def clientes_com_mais_compras():
     print("Clientes que mais compram:")
@@ -187,7 +194,7 @@ def clientes_que_mais_gastam():
     print("Clientes que mais gastam:")
     tabela_gastos = clientes_que_mais_gastam_db()
     for nome, total in tabela_gastos:
-        print(f"- {nome} | R${total:.2f}")
+        print(f"- {nome} | R$ {total:.2f}")
     print("")
 
 def listar_clientes_sem_compras():
@@ -260,7 +267,7 @@ def atualizar_produto():
         if produto is None:
             print("\nProduto não encontrado. Tente novamente.")
         else:
-            print(f"\nAtualizando produto: {produto.nome} | Preço: R${produto.preco:.2f} | Estoque: {produto.quantidade}")
+            print(f"\nAtualizando produto: {produto.nome} | Preço: R$ {produto.preco:.2f} | Estoque: {produto.quantidade}")
             atualizar_nome_preco_estoque_produto(produto)
             return
 
@@ -284,13 +291,16 @@ def remover_produto():
     produto = buscar_por_id_db(id_produto)
     if produto is None:
         print("\nProduto não encontrado. Tente novamente.\n")
+        return
+    if produto.itens and len(produto.itens) > 0:
+        print("\nNão é possível remover este produto, pois ele já foi vendido em uma compra.")
+        return
+    confirmar = entrar_int_personalizado(f"\n>> Tem certeza que deseja remover o produto {produto.nome}? [1 - Sim / 2 - Não]: ", 1, 2)
+    if confirmar == 1:
+        remover_produto_db(produto)
+        print(f"\nProduto {produto.nome} removido com sucesso.\n")
     else:
-        confirmar = entrar_int_personalizado(f"\n>> Tem certeza que deseja remover o produto {produto.nome}? [1 - Sim / 2 - Não]: ", 1, 2)
-        if confirmar == 1:
-            remover_produto_db(produto)
-            print(f"\nProduto {produto.nome} removido com sucesso.\n")
-        else:
-            print("\nRemoção de produto cancelada.\n")
+        print("\nRemoção de produto cancelada.\n")
 
 def consultar_fornecedores_produto():
     produtos = obter_todos_produtos_db()

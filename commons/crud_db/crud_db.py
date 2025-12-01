@@ -24,8 +24,7 @@ def reduzir_estoque_db(id_produto, quantidade):
 
 def buscar_por_id_db(id_produto):
     try:
-        with session:
-            produto_procurado = session.query(Produto).filter_by(id=id_produto).first()
+        produto_procurado = session.query(Produto).filter_by(id=id_produto).first()
         return produto_procurado
     except Exception as e:
         print("Erro ao buscar produto por ID:", e)
@@ -132,6 +131,16 @@ def produtos_com_pouco_estoque_db(limite):
 
 # ====== Queries para Clientes ======
 
+def listar_todos_clientes_com_contagem_de_compras_db():
+    try:
+        clientes = session.query(Cliente)\
+            .outerjoin(Compra, Cliente.id_cliente == Compra.id_cliente)\
+            .options(joinedload(Cliente.compras))\
+            .all()
+        return clientes
+    except Exception as e:
+        print("Erro ao listar clientes com contagem de compras:", e)
+
 def contar_clientes_db():
     try:
         with session:
@@ -180,14 +189,15 @@ def procurar_nome_cliente_db(nome_cliente):
     except Exception as e:
         print("Erro ao procurar cliente por nome:", e)
 
+
 def compras_do_cliente_db(id_cliente):
     try:
-        with session:
-            compras = session.query(Compra)\
-                .filter_by(id_cliente=id_cliente)\
-                .order_by(desc(Compra.data_hora))\
-                .all()
-            return compras
+        return (
+            session.query(Compra)
+            .options(joinedload(Compra.itens).joinedload(Item.produto))
+            .filter(Compra.id_cliente == id_cliente)
+            .all()
+        )
     except Exception as e:
         print("Erro ao obter compras do cliente:", e)
 
@@ -244,8 +254,15 @@ def armazenar_produtos_fornecedores_no_db(dataframe_produtos_fornecedores):
 
 def armazenar_itens_compra_no_db(id_compra, sacola):
     try:
+        grupos = {}
+        for produto, quantidade in sacola:
+            if produto.id not in grupos:
+                grupos[produto.id] = {"produto": produto, "quantidade": 0}
+            grupos[produto.id]["quantidade"] += quantidade
         with session:
-            for produto, quantidade in sacola:
+            for item in grupos.values():
+                produto = item["produto"]
+                quantidade = item["quantidade"]
                 novo_item = Item(
                     compra_id=id_compra,
                     produto_id=produto.id,

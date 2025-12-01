@@ -67,18 +67,19 @@ def gerar_df_boleto(sacola):
 
 def gerar_boleto(sacola, cliente):
     df_group = gerar_df_boleto(sacola)
+    df_group.index = df_group.index + 1
     print(f"\nCliente {cliente.nome}")
     print(f"Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}\n")    
-    print(tabulate(df_group, headers=["Item", "Produto", "Preço", "Quant.", "Total"]))
+    print(tabulate(df_group, headers=["Item", "Produto", "Preço", "Quant.", "Total"],))
     print(f"\nItens diferentes: {len(df_group)}")
-    print(f"Total geral: R${df_group['total'].sum():.2f}")
+    print(f"Total geral: R$ {df_group['total'].sum():.2f}")
 
 def fechar_caixa(vendas_do_dia):
-    tabela = [[vendas['cliente'], f"R${vendas['total']:.2f}"] for vendas in vendas_do_dia]
+    tabela = [[vendas['cliente'], f"R$ {vendas['total']:.2f}"] for vendas in vendas_do_dia]
     print("\nFechamento do caixa")
     print(f"Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}\n")
     print(tabulate(tabela, headers=["Cliente", "Total"]))
-    print(f"\nTotal de vendas: R${sum(vendas['total'] for vendas in vendas_do_dia):.2f}\n")
+    print(f"\nTotal de vendas: R$ {sum(vendas['total'] for vendas in vendas_do_dia):.2f}\n")
     verificar_sem_estoque()
     print("")
     from app_controller import AppController
