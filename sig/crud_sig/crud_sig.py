@@ -1,5 +1,5 @@
 from sig.menu_sig.menu_sig import exibir_menu_sig, menu_modulo_clientes_sig, menu_modulo_produtos_sig, menu_clientes_com_compras
-from commons.utils.util import entrar_int_personalizado, entrar_int
+from commons.utils.util import entrar_int_personalizado, entrar_int, entrar_float
 from commons.crud_db.crud_db import *
 from tabulate import tabulate
 
@@ -18,9 +18,11 @@ def dashboard_principal_sig():
                     print("")
                     modulo_produtos_sig()
                 case 3:
+                    from app_controller import AppController
                     print("")
-                    print("Encerrando do sistema...")
-                    exit()
+                    app = AppController()
+                    app.restart_loop()
+                    break
                 case _:
                     raise ValueError("Opção inválida. Tente novamente.")
         except Exception as e:
@@ -53,26 +55,19 @@ def modulo_produtos_sig():
         try:
             match entrada:
                 case 1:
-                    print("")
-                    print("Função de adicionar produto ainda não implementada.")
+                    cadastrar_novo_produto()
                 case 2:
-                    print("")
-                    print("Função de listar produtos ainda não implementada.")
+                    atualizar_produto()
                 case 3:
-                    print("")
-                    print("Função de atualizar produto ainda não implementada.")
+                    remover_produto()
                 case 4:
-                    print("")
-                    print("Função de deletar produto ainda não implementada.")
+                    consultar_fornecedores_produto()
                 case 5:
-                    print("")
-                    print("Função de buscar produto por ID ainda não implementada.")
+                    produtos_mais_vendidos()
                 case 6:
-                    print("")
-                    print("Função de verificar produtos sem estoque ainda não implementada.")
+                    produtos_menos_vendidos()
                 case 7:
-                    print("")
-                    print("Função de reduzir estoque ainda não implementada.")
+                    produtos_com_pouco_estoque()
                 case 8:
                     print("")
                     dashboard_principal_sig()
@@ -163,14 +158,14 @@ def clientes_com_mais_compras():
     print("Clientes que mais compram:")
     tabela_compras = consultar_clientes_com_mais_compras_db()
     for nome, compras in tabela_compras:
-        print(f"- {nome}: {compras} compras")
+        print(f"- {nome} | {compras} compras")
     print("")
 
 def clientes_que_mais_gastam():
     print("Clientes que mais gastam:")
     tabela_gastos = clientes_que_mais_gastam_db()
     for nome, total in tabela_gastos:
-        print(f"- {nome}: R${total:.2f}")
+        print(f"- {nome} | R${total:.2f}")
     print("")
 
 def listar_clientes_sem_compras():
@@ -180,7 +175,162 @@ def listar_clientes_sem_compras():
     else:
         print("\nClientes que não possuem compras:\n")
         for cliente in clientes:
-            print(f"- Id {cliente.id_cliente}: {cliente.nome}")
+            print(f"- Id {cliente.id_cliente} | {cliente.nome}")
     modulo_clientes_sig()
 
-# ====== Funções 
+# ====== Funções para o modulo produtos ======
+
+def cadastrar_novo_produto():
+        while True:
+            nome = input("\n>> Digite o nome do produto: ")
+            preco = entrar_float("\n>> Digite o preço do produto: ")
+            quantidade_estoque = entrar_int("\n>> Digite a quantidade em estoque do produto: ")
+            produto_existente = buscar_produto_por_nome_db(nome)
+            if produto_existente is None:
+                produto = armazenar_produto_db(nome, quantidade_estoque, preco)
+                print(f"\nProduto {produto.nome} cadastrado com sucesso.")
+                relacionar_produto_fornecedor(produto.id)
+                break
+            else:
+                print(f"\nProduto {nome} já existe. Tente outro nome.")
+
+def relacionar_produto_fornecedor(id_produto):
+    while True:
+        listar_fornecedores_db()
+        entrada = entrar_int("\n>> Digite o [ID] do fornecedor para relacionar um fornecedor a um produto: ",)
+        fornecedor = procurar_fornecedor_db(entrada)
+        if fornecedor is None:
+            print("\nFornecedor não encontrado. Tente novamente.")
+        else:
+            if verificar_relacionamento_produto_fornecedor_db(id_produto, fornecedor.id) is None:
+                armazenar_relacionamento_produto_fornecedor_db(id_produto, fornecedor.id)
+                print(f"\nProduto relacionado ao fornecedor {fornecedor.nome} com sucesso.\n")
+                decidir_adicionar_outro_fornecedor(id_produto)
+            else:
+                print("\nEsse fornecedor já está relacionado a esse produto. Tente novamente.")
+
+def decidir_adicionar_outro_fornecedor(id_produto):
+    while True:
+        entrada = entrar_int_personalizado(">> Deseja adicionar outro fornecedor? [1 - Sim / 2 - Não]: ", 1, 2)
+        match entrada:
+            case 1:
+                relacionar_produto_fornecedor(id_produto)
+            case 2:
+                modulo_produtos_sig()
+            case _:
+                print("Opção inválida. Tente novamente.")
+
+def listar_fornecedores_db():
+    fornecedores = consultar_todos_fornecedores_db()
+    print("\nFornecedores disponíveis:\n")
+    for fornecedor in fornecedores:
+        print(f"- Id {fornecedor.id}: {fornecedor.nome}")
+
+def atualizar_produto():
+    while True:
+        produtos = obter_todos_produtos_db()
+        if not produtos:
+            print("\nNenhum produto cadastrado.")
+            return
+        exibir_produtos()
+        id_produto = entrar_int("\n>> Digite o ID do produto que deseja atualizar: ")
+        produto = buscar_por_id_db(id_produto)
+        if produto is None:
+            print("\nProduto não encontrado. Tente novamente.")
+        else:
+            print(f"\nAtualizando produto: {produto.nome} | Preço: R${produto.preco:.2f} | Estoque: {produto.quantidade}")
+            atualizar_nome_preco_estoque_produto(produto)
+            return
+
+def atualizar_nome_preco_estoque_produto(produto):
+    novo_nome = input(f"\n>> Digite o novo nome: ")
+    if not novo_nome.strip():
+        print("\nEspaço em branco! Mantendo o nome anterior.\n")
+        novo_nome = produto.nome
+    novo_preco = entrar_float(f">> Digite o novo preço: ")
+    nova_quantidade = entrar_int(f">> Nova quantidade em estoque: ")
+    atualizar_produto_db(produto.id, novo_nome, nova_quantidade, novo_preco)
+    print(f"\nProduto {novo_nome} atualizado com sucesso!\n")
+
+def remover_produto():
+    produtos = obter_todos_produtos_db()
+    if not produtos:
+        print("\nNenhum produto cadastrado.")
+        return
+    exibir_produtos()
+    id_produto = entrar_int(">> Digite o ID do produto que deseja remover: ")
+    produto = buscar_por_id_db(id_produto)
+    if produto is None:
+        print("\nProduto não encontrado. Tente novamente.\n")
+    else:
+        confirmar = entrar_int_personalizado(f"\n>> Tem certeza que deseja remover o produto {produto.nome}? [1 - Sim / 2 - Não]: ", 1, 2)
+        if confirmar == 1:
+            remover_produto_db(produto)
+            print(f"\nProduto {produto.nome} removido com sucesso.\n")
+        else:
+            print("\nRemoção de produto cancelada.\n")
+
+def consultar_fornecedores_produto():
+    produtos = obter_todos_produtos_db()
+    if not produtos:
+        print("\nNenhum produto cadastrado.")
+        return
+    exibir_produtos()
+    id_produto = entrar_int(">> Digite o ID do produto que deseja Consultar: ")
+    produto = buscar_por_id_db(id_produto)
+    if produto is None:
+        print("\nProduto não encontrado.\n")
+        return
+    fornecedores = obter_fornecedores_do_produto_db(produto.id)
+    if not fornecedores:
+        print(f"\nO produto {produto.nome} não possui fornecedores relacionados.\n")
+    else:
+        exibir_fornecedores_produto(fornecedores, produto) 
+   
+def exibir_fornecedores_produto(fornecedores, produto):
+    print(f"\nFornecedores do produto {produto.nome}:\n")
+    for fornecedor in fornecedores:
+        print(f"- {fornecedor.nome}")
+    print("")
+
+def produtos_mais_vendidos():
+    top_produtos = produtos_mais_vendidos_db()
+    if not top_produtos:
+        print("\nNenhum produto vendido até o momento.\n")
+        return
+    print("\nProdutos mais vendidos:\n")
+    for nome_produto, total_vendido in top_produtos:
+        print(f"- {nome_produto} | {total_vendido} unidades vendidas")
+    print("")
+
+def produtos_menos_vendidos():
+    top_produtos = produtos_menos_vendidos_db()
+    if not top_produtos:
+        print("\nNenhum produto vendido até o momento.\n")
+        return
+    print("\nProdutos menos vendidos:\n")
+    for produto, total_vendido in top_produtos:
+        print(f"- {produto.nome} | {total_vendido} unidades vendidas")
+    print("")
+
+def produtos_com_pouco_estoque():
+    limite = entrar_int("\n>> Digite um parâmetro para verificar produto com pouco estoque: ")
+    produtos_acabando = produtos_com_pouco_estoque_db(limite)
+    if not produtos_acabando:
+        print("\nNenhum produto encontrado com pouco estoque.\n")
+        return
+    print("\nProdutos com pouco estoque:\n")
+    for produto in produtos_acabando:
+        print(f"- {produto.nome} | Estoque: {produto.quantidade}")
+        produto
+    print("")
+
+def exibir_produtos():
+    produtos = obter_todos_produtos_db()
+    if produtos is None or len(produtos) == 0:
+        print("\nNenhum produto cadastrado.")
+    else:
+        print("\nProdutos cadastrados:\n")
+        for produto in produtos:
+            print(f"- ID {produto.id}: {produto.nome} | Preço: R${produto.preco:.2f} | Estoque: {produto.quantidade}")
+        print("")

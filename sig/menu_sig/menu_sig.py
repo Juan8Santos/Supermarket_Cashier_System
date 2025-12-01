@@ -4,7 +4,7 @@ def exibir_menu_sig():
     print("="*40)
     print("\033[92m[1]\033[0m Clientes")
     print("\033[92m[2]\033[0m Produtos")
-    print("\033[92m[3]\033[0m Sair")
+    print("\033[92m[3]\033[0m Voltar ao menu principal")
     print("-"*40)
 
 def menu_modulo_clientes_sig():

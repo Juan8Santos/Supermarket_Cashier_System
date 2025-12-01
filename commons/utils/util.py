@@ -17,3 +17,12 @@ def entrar_int(msg_personalizado):
     except ValueError:
       print("Erro! valor inválido.")
   return entrada
+
+def entrar_float(msg_personalizado):
+  while (True):
+    try:
+        entrada = float(input(msg_personalizado))
+        break
+    except ValueError:
+      print("Erro! valor inválido.")
+  return entrada

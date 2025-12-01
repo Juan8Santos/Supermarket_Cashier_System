@@ -1,16 +1,22 @@
-from caixa.caixa import inicializar_sistema_caixa
-from sig.sig import inicializar_sistema_sig
-from commons.utils.util import entrar_int_personalizado
-from commons.menu.menu import menu_inicial_aplicacao
 from caixa.web_scrapping.extracao_dados import inicializar_extracao_dados
 from caixa.crud_caixa.crud_caixa import carregar_mocki_clientes
 from sig.data_extraction.data_extraction import inicializar_extracao_dados_sheets
+from commons.menu.menu import menu_inicial_aplicacao
+from commons.utils.util import entrar_int_personalizado
+from caixa.caixa import inicializar_sistema_caixa
+from sig.sig import inicializar_sistema_sig
 
 class AppController:
     def start(self):
         inicializar_extracao_dados()
         carregar_mocki_clientes()
         inicializar_extracao_dados_sheets()
+        self.loop_main()
+            
+    def restart_loop(self):
+        self.loop_main()
+
+    def loop_main(self):
         while True:
             menu_inicial_aplicacao()
             entrada = entrar_int_personalizado(">> Escolha uma opção: ", 1, 3)
@@ -25,7 +31,7 @@ class AppController:
                     case 3:
                         print("")
                         print("Encerrando do sistema...")
-                        break
+                        exit()
                     case _:
                         raise ValueError("Opção inválida. Tente novamente.")
             except Exception as e:

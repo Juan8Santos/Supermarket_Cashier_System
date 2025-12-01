@@ -80,7 +80,10 @@ def fechar_caixa(vendas_do_dia):
     print(tabulate(tabela, headers=["Cliente", "Total"]))
     print(f"\nTotal de vendas: R${sum(vendas['total'] for vendas in vendas_do_dia):.2f}\n")
     verificar_sem_estoque()
-    exit()
+    print("")
+    from app_controller import AppController
+    app = AppController()
+    app.restart_loop()
 
 # ====== Funções para Produtos ======
 
