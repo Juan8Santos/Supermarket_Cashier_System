@@ -1,5 +1,5 @@
-from sig.crud_sig.crud_sig import dashboard_principal_sig
+from sig.crud_sig.crud_sig import exigir_senha_inicial_sig
 
 def inicializar_sistema_sig():
-    dashboard_principal_sig()
-        
+    exigir_senha_inicial_sig()
+

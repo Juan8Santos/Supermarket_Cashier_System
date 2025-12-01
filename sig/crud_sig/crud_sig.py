@@ -3,6 +3,28 @@ from commons.utils.util import entrar_int_personalizado, entrar_int, entrar_floa
 from commons.crud_db.crud_db import *
 from tabulate import tabulate
 
+# ====== Funções para senha inicial sistema SIG ======
+
+def exigir_senha_inicial_sig():
+    senha_encriptada = "Vlj456"
+    tentativas = 3
+    while tentativas > 0:
+        entrada = input(">> Digite a senha para acessar o sistema SIG: ")
+        if entrada == desencriptografar(senha_encriptada):
+            print("\nAcesso concedido.\n")
+            dashboard_principal_sig()
+            return
+        else:
+            tentativas -= 1
+            print(f"\nSenha incorreta. Você tem {tentativas} tentativas restantes!\n")
+    print("Número máximo de tentativas excedido! Retornando ao menu principal.\n")
+    from app_controller import AppController
+    app = AppController()
+    app.restart_loop()
+
+def desencriptografar(senha_criptografada):
+    return ''.join(chr(ord(caracter) - 3) for caracter in senha_criptografada)
+
 # ====== Função de navegação sistema SIG ======
 
 def dashboard_principal_sig():
