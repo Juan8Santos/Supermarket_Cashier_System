@@ -9,7 +9,7 @@ def exibir_menu_sig():
 
 def menu_modulo_clientes_sig():
     print("="*40)
-    print(" "*6 + "Módulo de Clientes - SIG")
+    print(" "*9 + "Módulo de Clientes - SIG")
     print("="*40)
     print("\033[92m[1]\033[0m Clientes com compras")
     print("\033[92m[2]\033[0m Clientes sem compras")
@@ -18,7 +18,7 @@ def menu_modulo_clientes_sig():
 
 def menu_modulo_produtos_sig():
     print("="*40)
-    print(" "*6 + "Módulo de Produtos - SIG")
+    print(" "*9 + "Módulo de Produtos - SIG")
     print("="*40)
     print("\033[92m[1]\033[0m Cadastrar novo produto")
     print("\033[92m[2]\033[0m Atualizar produto")
@@ -29,3 +29,12 @@ def menu_modulo_produtos_sig():
     print("\033[92m[7]\033[0m Produtos com pouco estoque")
     print("\033[92m[8]\033[0m Voltar")
     print("-"*40)
+
+def menu_clientes_com_compras():
+    print("="*40)
+    print(" "*7 + "Clientes com Mais Compras")
+    print("="*40)
+    print("\033[92m[1]\033[0m Consultar compra de um cliente")
+    print("\033[92m[2]\033[0m Clientes que mais compram")
+    print("\033[92m[3]\033[0m Clientes que mais gastam")
+    print("\033[92m[4]\033[0m Voltar")

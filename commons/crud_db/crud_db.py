@@ -1,5 +1,7 @@
 from commons.models.models import Produto, Cliente, Fornecedor, ProdutosFornecedores, Compra, Item
-from commons.conn.conexao import session   
+from commons.conn.conexao import session
+from sqlalchemy import *
+from sqlalchemy.orm import joinedload
 
 # ====== Queries para Produtos ======
 
@@ -94,6 +96,17 @@ def procurar_nome_cliente_db(nome_cliente):
     except Exception as e:
         print("Erro ao procurar cliente por nome:", e)
 
+def compras_do_cliente_db(id_cliente):
+    try:
+        with session:
+            compras = session.query(Compra)\
+                .filter_by(id_cliente=id_cliente)\
+                .order_by(desc(Compra.data_hora))\
+                .all()
+            return compras
+    except Exception as e:
+        print("Erro ao obter compras do cliente:", e)
+
 # ====== Queries para insert de base de dados no BD ======  
 
 def armazenar_produtos_no_db(dataframe_produtos):
@@ -173,3 +186,62 @@ def armazenar_itens_compra_no_db(id_compra, sacola):
             session.commit()
     except Exception as e:
         print("Erro ao armazenar itens da compra no banco de dados:", e)
+
+# ====== Queries para compras ======
+
+def consultar_compra_filtrado_por_cliente_e_compra__db(id_compra, id_cliente):
+    try:
+        with session:
+            compra = session.query(Compra)\
+                .options(
+                    joinedload(Compra.itens).joinedload(Item.produto),
+                    joinedload(Compra.cliente)
+                )\
+                .filter_by(id=id_compra, id_cliente=id_cliente)\
+                .first()
+            return compra
+    except Exception as e:
+        print("Erro ao consultar itens da compra:", e)
+
+def consultar_clientes_com_mais_compras_db():
+    try:
+        with session:
+            resultados = session.query(
+                Cliente.nome,
+                func.count(Compra.id).label("total_compras")
+            ).join(Compra)\
+             .group_by(Cliente.id_cliente)\
+             .order_by(func.count(Compra.id).desc())\
+             .limit(5)\
+             .all()
+            return resultados
+    except Exception as e:
+        print("Erro ao consultar clientes que mais compram:", e)
+
+def clientes_que_mais_gastam_db():
+    try:
+        with session:
+            resultados = session.query(
+                Cliente.nome,
+                func.sum(Item.quantidade * Item.preco_unitario).label("total_gasto")
+            ).select_from(Cliente)\
+             .join(Compra, Compra.id_cliente == Cliente.id_cliente)\
+             .join(Item, Item.compra_id == Compra.id)\
+             .group_by(Cliente.id_cliente)\
+             .order_by(func.sum(Item.quantidade * Item.preco_unitario).desc())\
+             .limit(5)\
+             .all()
+            return resultados
+    except Exception as e:
+        print("Erro ao consultar clientes que mais gastam:", e)
+
+def consultar_clientes_sem_compras_db():
+    try:
+        with session:
+            resultados = session.query(Cliente)\
+                .outerjoin(Compra, Compra.id_cliente == Cliente.id_cliente)\
+                .filter(Compra.id == None)\
+                .all()
+            return resultados
+    except Exception as e:
+        print("Erro ao consultar clientes sem compras:", e)
