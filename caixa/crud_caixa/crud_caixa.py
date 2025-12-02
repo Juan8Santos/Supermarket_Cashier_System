@@ -30,11 +30,11 @@ def atender_cliente(vendas_do_dia, cliente):
     
 def executar_operacao_caixa(sacola, id_produto, quantidade):
     produto = buscar_produto_por_id(id_produto)
-    quantidade_produto = validar_quantidade_suficiente(id_produto, quantidade, sacola)
     if not produto:
         print("Produto não encontrado.")
         return
-    if not quantidade_produto:
+    quantidade_produto = validar_quantidade_suficiente(id_produto, quantidade, sacola)
+    if quantidade_produto is None:
         print(f"Quantidade insuficiente em estoque para o produto {produto.nome}.")
         return
     sacola.append((produto, quantidade_produto))
@@ -191,4 +191,9 @@ def registrar_compra(id_cliente):
 # ====== Funções para Itens ======
 
 def registrar_itens_compra(id_compra, sacola):
-    armazenar_itens_compra_no_db(id_compra, sacola)
+    grupos = {}
+    for produto, quantidade in sacola:
+        if produto.id not in grupos:
+            grupos[produto.id] = {"produto": produto, "quantidade": 0}
+        grupos[produto.id]["quantidade"] += quantidade
+    armazenar_itens_compra_no_db(id_compra, grupos)

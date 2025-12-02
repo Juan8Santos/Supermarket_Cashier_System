@@ -174,7 +174,6 @@ def formatar_detalhes_compra_cliente(compra):
     print(f"Data e Hora: {compra.data_hora}\n")
     gerar_tabela_boleto_de_compra(compra)
 
-
 def gerar_tabela_boleto_de_compra(compra):
     tabela = []
     valor_total = 0

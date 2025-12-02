@@ -189,7 +189,6 @@ def procurar_nome_cliente_db(nome_cliente):
     except Exception as e:
         print("Erro ao procurar cliente por nome:", e)
 
-
 def compras_do_cliente_db(id_cliente):
     try:
         return (
@@ -252,13 +251,8 @@ def armazenar_produtos_fornecedores_no_db(dataframe_produtos_fornecedores):
 
 # ====== Queries para Itens ======
 
-def armazenar_itens_compra_no_db(id_compra, sacola):
-    try:
-        grupos = {}
-        for produto, quantidade in sacola:
-            if produto.id not in grupos:
-                grupos[produto.id] = {"produto": produto, "quantidade": 0}
-            grupos[produto.id]["quantidade"] += quantidade
+def armazenar_itens_compra_no_db(id_compra, grupos):
+    try:       
         with session:
             for item in grupos.values():
                 produto = item["produto"]
