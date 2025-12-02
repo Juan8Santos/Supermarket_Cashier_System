@@ -119,12 +119,7 @@ def decidir_opcao_no_clientes_com_compras():
         
 def consultar_cliente_com_compras():
     while True:
-        produtos = listar_todos_clientes_com_contagem_de_compras_db()
-        print("\nClientes e quantidades compras:\n")
-        for cliente in produtos:
-            total_compras = len(cliente.compras) if cliente.compras else 0
-            print(f"- Id {cliente.id_cliente} | {cliente.nome} | Total de compras: {total_compras}")
-        print("")
+        formatar_clientes_mais_compras()
         entrada = entrar_int(">> Digite o id do cliente que deseja encontrar o histórico: ")
         cliente = procurar_cliente_db(entrada)
         if cliente is None:
@@ -136,6 +131,14 @@ def consultar_cliente_com_compras():
             formatar_historico_compras_cliente(cliente, compras)
             decidir_consultar_compra_do_cliente(cliente, compras)
             break
+
+def formatar_clientes_mais_compras():
+    produtos = listar_todos_clientes_com_contagem_de_compras_db()
+    print("\nClientes e quantidades compras:\n")
+    for cliente in produtos:
+        total_compras = len(cliente.compras) if cliente.compras else 0
+        print(f"- Id {cliente.id_cliente} | {cliente.nome} | Total de compras: {total_compras}")
+    print("")
 
 def formatar_historico_compras_cliente(cliente, compras):
     print(f"\nHistórico de compras do cliente {cliente.nome}:\n")
@@ -158,7 +161,7 @@ def decidir_consultar_compra_do_cliente(cliente, compras):
 def consultar_compra_do_cliente(cliente, compras):
     while True:
         entrada = entrar_int("\n>> Digite o id da compra que deseja consultar: ")
-        compra_encontrada = next((caracter for caracter in compras if caracter.id == entrada), None)     
+        compra_encontrada = next((compra for compra in compras if compra.id == entrada), None)     
         if compra_encontrada:
             compra = consultar_compra_filtrado_por_cliente_e_compra__db(compra_encontrada.id, cliente.id_cliente)
             formatar_detalhes_compra_cliente(compra)
@@ -169,18 +172,22 @@ def consultar_compra_do_cliente(cliente, compras):
 def formatar_detalhes_compra_cliente(compra):
     print(f"\nDetalhes da compra ID {compra.id} - Cliente: {compra.cliente.nome}")
     print(f"Data e Hora: {compra.data_hora}\n")
+    gerar_tabela_boleto_de_compra(compra)
+
+
+def gerar_tabela_boleto_de_compra(compra):
     tabela = []
     valor_total = 0
     for item in compra.itens:
         subtotal = item.quantidade * item.preco_unitario
         valor_total += subtotal
-        tabela.append([
-            item.produto.nome,
-            item.quantidade,
-            f"{item.preco_unitario:.2f}",
-            f"{subtotal:.2f}"
-        ])
-    print(tabulate(tabela, headers=["Produto", "Quantidade", "Preço Unitário", "Subtotal"]))
+        tabela.append({
+            "produto": item.produto.nome,
+            "quantidade": item.quantidade,
+            "preco_unitario": item.preco_unitario,
+            "subtotal": subtotal
+        })
+    print(tabulate(tabela, headers="keys"))
     print(f"\nValor Total da Compra: R$ {valor_total:.2f}\n")
 
 def clientes_com_mais_compras():
@@ -230,13 +237,13 @@ def relacionar_produto_fornecedor(id_produto):
         fornecedor = procurar_fornecedor_db(entrada)
         if fornecedor is None:
             print("\nFornecedor não encontrado. Tente novamente.")
+            continue
+        if verificar_relacionamento_produto_fornecedor_db(id_produto, fornecedor.id) is None:
+            armazenar_relacionamento_produto_fornecedor_db(id_produto, fornecedor.id)
+            print(f"\nProduto relacionado ao fornecedor {fornecedor.nome} com sucesso.\n")
+            decidir_adicionar_outro_fornecedor(id_produto)
         else:
-            if verificar_relacionamento_produto_fornecedor_db(id_produto, fornecedor.id) is None:
-                armazenar_relacionamento_produto_fornecedor_db(id_produto, fornecedor.id)
-                print(f"\nProduto relacionado ao fornecedor {fornecedor.nome} com sucesso.\n")
-                decidir_adicionar_outro_fornecedor(id_produto)
-            else:
-                print("\nEsse fornecedor já está relacionado a esse produto. Tente novamente.")
+            print("\nEsse fornecedor já está relacionado a esse produto. Tente novamente.")
 
 def decidir_adicionar_outro_fornecedor(id_produto):
     while True:
@@ -295,6 +302,9 @@ def remover_produto():
     if produto.itens and len(produto.itens) > 0:
         print("\nNão é possível remover este produto, pois ele já foi vendido em uma compra.")
         return
+    confirmar_remocao_produto(produto)
+
+def confirmar_remocao_produto(produto):
     confirmar = entrar_int_personalizado(f"\n>> Tem certeza que deseja remover o produto {produto.nome}? [1 - Sim / 2 - Não]: ", 1, 2)
     if confirmar == 1:
         remover_produto_db(produto)
@@ -307,18 +317,22 @@ def consultar_fornecedores_produto():
     if not produtos:
         print("\nNenhum produto cadastrado.")
         return
-    exibir_produtos()
-    id_produto = entrar_int(">> Digite o ID do produto que deseja Consultar: ")
-    produto = buscar_por_id_db(id_produto)
+    produto = obter_produtos_valido()
     if produto is None:
         print("\nProduto não encontrado.\n")
         return
     fornecedores = obter_fornecedores_do_produto_db(produto.id)
     if not fornecedores:
         print(f"\nO produto {produto.nome} não possui fornecedores relacionados.\n")
-    else:
-        exibir_fornecedores_produto(fornecedores, produto) 
-   
+        return
+    exibir_fornecedores_produto(fornecedores, produto) 
+
+def obter_produtos_valido():
+    exibir_produtos()
+    id_produto = entrar_int(">> Digite o ID do produto que deseja Consultar: ")
+    produto = buscar_por_id_db(id_produto)
+    return produto
+
 def exibir_fornecedores_produto(fornecedores, produto):
     print(f"\nFornecedores do produto {produto.nome}:\n")
     for fornecedor in fornecedores:
@@ -330,9 +344,12 @@ def produtos_mais_vendidos():
     if not top_produtos:
         print("\nNenhum produto vendido até o momento.\n")
         return
+    exibir_produtos_mais_vendidos(top_produtos)
+
+def exibir_produtos_mais_vendidos(produtos):
     print("\nProdutos mais vendidos:\n")
-    for nome_produto, total_vendido in top_produtos:
-        print(f"- {nome_produto} | {total_vendido} unidades vendidas")
+    for produto, total_vendido in produtos:
+        print(f"- {produto.nome} | {total_vendido} unidades vendidas")
     print("")
 
 def produtos_menos_vendidos():
@@ -340,8 +357,11 @@ def produtos_menos_vendidos():
     if not top_produtos:
         print("\nNenhum produto vendido até o momento.\n")
         return
+    exibir_produtos_menos_vendidos(top_produtos)
+
+def exibir_produtos_menos_vendidos(produtos):
     print("\nProdutos menos vendidos:\n")
-    for produto, total_vendido in top_produtos:
+    for produto, total_vendido in produtos:
         print(f"- {produto.nome} | {total_vendido} unidades vendidas")
     print("")
 
@@ -351,18 +371,20 @@ def produtos_com_pouco_estoque():
     if not produtos_acabando:
         print("\nNenhum produto encontrado com pouco estoque.\n")
         return
+    exibir_produtos_com_pouco_estoque(produtos_acabando)
+
+def exibir_produtos_com_pouco_estoque(produtos):
     print("\nProdutos com pouco estoque:\n")
-    for produto in produtos_acabando:
+    for produto in produtos:
         print(f"- {produto.nome} | Estoque: {produto.quantidade}")
-        produto
     print("")
 
 def exibir_produtos():
     produtos = obter_todos_produtos_db()
     if produtos is None or len(produtos) == 0:
         print("\nNenhum produto cadastrado.")
-    else:
-        print("\nProdutos cadastrados:\n")
-        for produto in produtos:
-            print(f"- ID {produto.id}: {produto.nome} | Preço: R${produto.preco:.2f} | Estoque: {produto.quantidade}")
-        print("")
+        return
+    print("\nProdutos cadastrados:\n")
+    for produto in produtos:
+        print(f"- ID {produto.id}: {produto.nome} | Preço: R${produto.preco:.2f} | Estoque: {produto.quantidade}")
+    print("")
