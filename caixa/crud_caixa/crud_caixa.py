@@ -29,13 +29,16 @@ def atender_cliente(vendas_do_dia, cliente):
     finalizar_venda(sacola, cliente, vendas_do_dia)
     
 def executar_operacao_caixa(sacola, id_produto, quantidade):
-    try:
-        produto = buscar_produto_por_id(id_produto)
-        quantidade_produto = validar_quantidade_suficiente(id_produto, quantidade, sacola)
-        sacola.append((produto, quantidade_produto))
-        print(f"Produto {produto.nome} adicionado à sacola.")
-    except ValueError as e:
-        print(e)
+    produto = buscar_produto_por_id(id_produto)
+    quantidade_produto = validar_quantidade_suficiente(id_produto, quantidade, sacola)
+    if not produto:
+        print("Produto não encontrado.")
+        return
+    if not quantidade_produto:
+        print(f"Quantidade insuficiente em estoque para o produto {produto.nome}.")
+        return
+    sacola.append((produto, quantidade_produto))
+    print(f"Produto {produto.nome} adicionado à sacola.")
 
 def finalizar_venda(sacola, cliente, vendas_do_dia):
     if len(sacola) > 0:
@@ -94,21 +97,22 @@ def reduzir_estoque(sacola):
 
 def buscar_produto_por_id(id_produto):
     produto = buscar_por_id_db(id_produto)
-    if not produto:
-        raise ValueError("Produto não encontrado.")
-    else:
-        return produto
+    return produto
 
 def validar_quantidade_suficiente(id_produto, quantidade, sacola):
-    verificacao_quantidade_total = 0
     quantidade_estoque = buscar_quantidade_por_id_db(id_produto)
-    for produto_sacola, quantidade_sacola in sacola:
-        if produto_sacola.id == id_produto:
-            verificacao_quantidade_total += quantidade_sacola
+    verificacao_quantidade_total = calcular_quantidade_na_sacola(id_produto, sacola)
     if (verificacao_quantidade_total + quantidade) > quantidade_estoque:
-        raise ValueError("Quantidade indisponível no estoque.")
+        return None
     else:
         return quantidade
+
+def calcular_quantidade_na_sacola(id_produto, sacola):
+    quantidade_total = 0
+    for produto_sacola, quantidade_sacola in sacola:
+        if produto_sacola.id == id_produto:
+            quantidade_total += quantidade_sacola
+    return quantidade_total
 
 def verificar_sem_estoque():
     sem_estoque = verificar_sem_estoque_db()
