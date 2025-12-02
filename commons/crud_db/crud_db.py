@@ -191,12 +191,13 @@ def procurar_nome_cliente_db(nome_cliente):
 
 def compras_do_cliente_db(id_cliente):
     try:
-        return (
+        compras_cliente = (
             session.query(Compra)
             .options(joinedload(Compra.itens).joinedload(Item.produto))
             .filter(Compra.id_cliente == id_cliente)
             .all()
         )
+        return compras_cliente
     except Exception as e:
         print("Erro ao obter compras do cliente:", e)
 
