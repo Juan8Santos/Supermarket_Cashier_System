@@ -6,6 +6,7 @@ from tabulate import tabulate
 # ====== Funções para senha inicial sistema SIG ======
 
 def exigir_senha_inicial_sig():
+    # A é senha "Sig123"
     senha_encriptada = "Vlj456"
     tentativas = 3
     while tentativas > 0:
