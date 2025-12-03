@@ -163,7 +163,7 @@ def consultar_compra_do_cliente(cliente, compras):
         entrada = entrar_int("\n>> Digite o id da compra que deseja consultar: ")
         compra_encontrada = next((compra for compra in compras if compra.id == entrada), None)     
         if compra_encontrada:
-            compra = consultar_compra_filtrado_por_cliente_e_compra__db(compra_encontrada.id, cliente.id_cliente)
+            compra = consultar_compra_filtrado_por_cliente_e_compra_db(compra_encontrada.id, cliente.id_cliente)
             formatar_detalhes_compra_cliente(compra)
             break
         else:
@@ -181,10 +181,10 @@ def gerar_tabela_boleto_de_compra(compra):
         subtotal = item.quantidade * item.preco_unitario
         valor_total += subtotal
         tabela.append({
-            "produto": item.produto.nome,
-            "quantidade": item.quantidade,
-            "preco_unitario": item.preco_unitario,
-            "subtotal": subtotal
+            "Produto": item.produto.nome,
+            "Quant.": item.quantidade,
+            "Preço": item.preco_unitario,
+            "Total": subtotal
         })
     print(tabulate(tabela, headers="keys"))
     print(f"\nValor Total da Compra: R$ {valor_total:.2f}\n")
@@ -206,11 +206,12 @@ def clientes_que_mais_gastam():
 def listar_clientes_sem_compras():
     clientes = consultar_clientes_sem_compras_db()
     if not clientes:
-        print("\nTodos os clientes possuem compras registradas.")
+        print("Todos os clientes possuem compras registradas.\n")
     else:
-        print("\nClientes que não possuem compras:\n")
+        print("Clientes que não possuem compras:\n")
         for cliente in clientes:
             print(f"- Id {cliente.id_cliente} | {cliente.nome}")
+        print("")
     modulo_clientes_sig()
 
 # ====== Funções para o modulo produtos ======
@@ -278,7 +279,7 @@ def atualizar_produto():
             return
 
 def atualizar_nome_preco_estoque_produto(produto):
-    novo_nome = input(f"\n>> Digite o novo nome: ")
+    novo_nome = input(f"\n>> Digite o novo nome (Mantenha o espaço em branco para manter o nome): ")
     if not novo_nome.strip():
         print("\nEspaço em branco! Mantendo o nome anterior.\n")
         novo_nome = produto.nome
@@ -286,6 +287,7 @@ def atualizar_nome_preco_estoque_produto(produto):
     nova_quantidade = entrar_int(f">> Nova quantidade em estoque: ")
     atualizar_produto_db(produto.id, novo_nome, nova_quantidade, novo_preco)
     print(f"\nProduto {novo_nome} atualizado com sucesso!\n")
+    decidir_adicionar_outro_fornecedor(produto.id)
 
 def remover_produto():
     produtos = obter_todos_produtos_db()

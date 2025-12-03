@@ -283,7 +283,7 @@ def armazenar_compras_no_db(id_cliente):
     except Exception as e:
         print("Erro ao armazenar nova compra no banco de dados:", e)
 
-def consultar_compra_filtrado_por_cliente_e_compra__db(id_compra, id_cliente):
+def consultar_compra_filtrado_por_cliente_e_compra_db(id_compra, id_cliente):
     try:
         with session:
             compra = session.query(Compra)\
